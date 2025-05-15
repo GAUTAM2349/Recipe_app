@@ -1,0 +1,18 @@
+const { DataTypes } = require("sequelize");
+const  sequelize  = require("../config/database");
+
+const Recipe = sequelize.define("Recipe", {
+  user_id: DataTypes.INTEGER,
+  title: DataTypes.STRING,
+  ingredients: DataTypes.ARRAY(DataTypes.TEXT),
+  instructions: DataTypes.TEXT,
+  cook_time: DataTypes.INTEGER,
+  servings: DataTypes.INTEGER,
+  category: DataTypes.STRING,
+  dietary_tags: DataTypes.ARRAY(DataTypes.TEXT),
+  difficulty: DataTypes.STRING,
+  image_url: DataTypes.TEXT,
+  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+});
+
+module.exports = Recipe;

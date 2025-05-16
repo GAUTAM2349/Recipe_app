@@ -7,13 +7,12 @@ const CollectionRecipe = require('./CollectionRecipe');
 const Review = require('./Review');
 const Follow = require('./Follow');
 const Activity = require('./Activity');
-
+// ***********************************************************************************************************8
 
 
 
 User.hasMany(Recipe, { foreignKey: 'user_id' });
 Recipe.belongsTo(User, { foreignKey: 'user_id' });
-
 
 User.belongsToMany(Recipe, {
   through: Favorite,
@@ -21,6 +20,7 @@ User.belongsToMany(Recipe, {
   otherKey: 'recipe_id',
   as: 'FavoriteRecipes'
 });
+
 Recipe.belongsToMany(User, {
   through: Favorite,
   foreignKey: 'recipe_id',

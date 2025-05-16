@@ -1,9 +1,15 @@
 const { DataTypes } = require("sequelize");
 const sequelize  = require("../config/database");
 
-const Follow = sequelize.define('Follow', {
-  follower_id: DataTypes.INTEGER,
-  followee_id: DataTypes.INTEGER
+const Follow = sequelize.define('follow', {
+  follower_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  followee_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  }
 }, {
   timestamps: false
 });

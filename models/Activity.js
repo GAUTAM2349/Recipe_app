@@ -1,12 +1,11 @@
 const { DataTypes } = require("sequelize");
-const sequelize  = require("../config/database");
+const sequelize = require("../config/database");
 
-
-const Activity = sequelize.define('Activity', {
+const Activity = sequelize.define("activity", {
   user_id: DataTypes.INTEGER,
   type: DataTypes.STRING,
   target_id: DataTypes.INTEGER,
-  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 });
 
 module.exports = Activity;

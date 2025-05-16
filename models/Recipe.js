@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const  sequelize  = require("../config/database");
 
-const Recipe = sequelize.define("Recipe", {
+const Recipe = sequelize.define("recipe", {
   user_id: DataTypes.INTEGER,
   title: DataTypes.STRING,
   ingredients: DataTypes.ARRAY(DataTypes.TEXT),

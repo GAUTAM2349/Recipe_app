@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const  sequelize  = require("../config/database");
 
 
-const Review = sequelize.define('Review', {
+const Review = sequelize.define('review', {
   user_id: DataTypes.INTEGER,
   recipe_id: DataTypes.INTEGER,
   rating: { type: DataTypes.INTEGER, validate: { min: 1, max: 5 } },

@@ -19,4 +19,8 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile };
+const userLoginStatus = (req, res) => {
+  return res.status(200).json({ message: "user is loggedin", user: req.user });
+};
+
+module.exports = { getProfile, updateProfile, userLoginStatus };

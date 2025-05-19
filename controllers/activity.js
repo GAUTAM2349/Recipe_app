@@ -2,6 +2,7 @@ const { Activity, User, Follow, Recipe } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getActivityFeed = async (req, res) => {
+  console.log("came for activity")
   try {
     const userId = req.user.id;
 
@@ -14,6 +15,7 @@ exports.getActivityFeed = async (req, res) => {
     const followeeIds = followees.map(f => f.followee_id);
 
     if (followeeIds.length === 0) {
+      console.log("retured 1")
       return res.json([]); 
     }
 
@@ -31,14 +33,10 @@ exports.getActivityFeed = async (req, res) => {
           model: User,
           attributes: ['id', 'name', 'profile_picture'],
         },
-        {
-          model: Recipe,
-          attributes: ['id', 'title', 'image_url'],
-          required: false,  
-        },
+        
       ],
     });
-
+    
     res.json(activities);
   } catch (err) {
     console.error(err);

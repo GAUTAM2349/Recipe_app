@@ -4,7 +4,8 @@ const usersOnly = require('../middlewares/usersOnly');
 
 const {
   getProfile,
-  updateProfile
+  updateProfile,
+  userLoginStatus
 } = require('../controllers/user');
 
 
@@ -12,5 +13,6 @@ const {
 // Protected routes
 router.get('/profile', usersOnly, getProfile);
 router.put('/profile', usersOnly, updateProfile);
+router.get('/login-status',usersOnly,userLoginStatus);
 
 module.exports = router;

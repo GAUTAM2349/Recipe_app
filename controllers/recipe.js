@@ -1,4 +1,5 @@
-const { Activity, sequelize } = require('../models');
+const { Op, where, fn, col } = require('sequelize');
+const { Activity, sequelize, User } = require('../models');
 const Recipe = require('../models/Recipe');
 
 const createRecipe = async (req, res) => {
@@ -8,7 +9,7 @@ const createRecipe = async (req, res) => {
 
     await Activity.create({
       user_id: req.user.id,
-      type: 'new_recipe',
+      activity_type: 'new_recipe',
       target_id: newRecipe.id,
     }, { transaction: t });
 
@@ -16,20 +17,124 @@ const createRecipe = async (req, res) => {
     res.status(201).json(newRecipe);
   } catch (err) {
     await t.rollback();
+    console.log(error);
     res.status(500).json({ message: 'Failed to create recipe' });
   }
 };
 
 
 
+// const getAllRecipes = async (req, res) => {
+//   try {
+//     const { search } = req.query;
+
+//     let whereClause = {};
+
+//     if (search) {
+//       whereClause = {
+//         [Op.or]: [
+//           { title: { [Op.iLike]: `%${search}%` } },
+//           // Only if ingredients and tags are strings:
+//           // { ingredients: { [Op.iLike]: `%${search}%` } },
+//           // { tags: { [Op.iLike]: `%${search}%` } },
+
+//           // If ingredients and tags are arrays, use raw SQL to match:
+//           where(fn("array_to_string", col("ingredients"), ","), {
+//             [Op.iLike]: `%${search}%`,
+//           }),
+//           where(fn("array_to_string", col("dietary_tags"), ","), {
+//             [Op.iLike]: `%${search}%`,
+//           }),
+//         ],
+//       };
+//     }
+
+//     const recipes = await Recipe.findAll({
+//       where: whereClause,
+//       include: {
+//         model: User,
+//         attributes: ['id', 'name', 'profile_picture'],
+//       },
+//     });
+
+//     res.json(recipes);
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ message: 'Failed to fetch recipes', error: err.message });
+//   }
+// };
+
+// const getAllRecipes = async (req, res) => {
+//   try {
+//     const { search, page = 1, limit = 10 } = req.query;
+
+//     const offset = (page - 1) * limit;
+
+//     let whereClause = {};
+
+//     if (search) {
+//       whereClause = {
+//         [Op.or]: [
+//           { title: { [Op.iLike]: `%${search}%` } },
+//           where(fn("array_to_string", col("ingredients"), ","), {
+//             [Op.iLike]: `%${search}%`,
+//           }),
+//           where(fn("array_to_string", col("dietary_tags"), ","), {
+//             [Op.iLike]: `%${search}%`,
+//           }),
+//         ],
+//       };
+//     }
+
+//     const recipes = await Recipe.findAll({
+//       where: whereClause,
+//       include: {
+//         model: User,
+//         attributes: ['id', 'name', 'profile_picture'],
+//       },
+//       limit: parseInt(limit),     // how many per page
+//       offset: parseInt(offset),   // where to start
+//       order: [['created_at', 'DESC']],
+//     });
+
+//     res.json(recipes);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ message: 'Failed to fetch recipes', error: err.message });
+//   }
+// };
 const getAllRecipes = async (req, res) => {
-  try {
-    const recipes = await Recipe.findAll();
-    res.json(recipes);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch recipes' });
+  const { search, category, difficulty, dietary, page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+  const whereClause = {};
+
+  if (search) {
+    whereClause[Op.or] = [
+      { title: { [Op.iLike]: `%${search}%` } },
+      where(fn("array_to_string", col("ingredients"), ","), {
+        [Op.iLike]: `%${search}%`,
+      }),
+      where(fn("array_to_string", col("dietary_tags"), ","), {
+        [Op.iLike]: `%${search}%`,
+      }),
+    ];
   }
+
+  if (category) whereClause.category = category;
+  if (difficulty) whereClause.difficulty = difficulty;
+  if (dietary) whereClause.dietary_tags = { [Op.contains]: [dietary] };
+
+  const { count, rows } = await Recipe.findAndCountAll({
+    where: whereClause,
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    order: [["created_at", "DESC"]],
+    include: { model: User, attributes: ["id", "name", "profile_picture"] }
+  });
+
+  res.json({ recipes: rows, totalPages: Math.ceil(count / limit) });
 };
+
 
 const getRecipeById = async (req, res) => {
   try {

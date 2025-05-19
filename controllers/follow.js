@@ -4,9 +4,11 @@ const User = require('../models/User');
 // Follow a user
 exports.followUser = async (req, res) => {
   const followerId = req.user.id;
-  const { followeeId } = req.body;
+  const { id:followeeId } = req.params;
+  console.log( "follow "+followeeId+"  "+followerId);
 
-  if (followerId === followeeId) {
+  if (followerId == followeeId) {
+    console.log("detected same users")
     return res.status(400).json({ message: "You cannot follow yourself" });
   }
 
@@ -24,6 +26,7 @@ exports.followUser = async (req, res) => {
     await Follow.create({ follower_id: followerId, followee_id: followeeId });
     res.status(201).json({ message: "Followed successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Failed to follow user", error: error.message });
   }
 };
@@ -34,6 +37,11 @@ exports.unfollowUser = async (req, res) => {
   const { followeeId } = req.body;
 
   try {
+
+    if( followerId == followeeId ){
+      return res.status(400).json({ message: "invalid request" });
+    }
+    
     const follow = await Follow.findOne({
       where: { follower_id: followerId, followee_id: followeeId }
     });
@@ -61,9 +69,9 @@ exports.getFollowing = async (req, res) => {
       }
     });
 
-    res.json(user.Following);
+    return res.json(user.Following);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch following list", error: error.message });
+    return res.status(500).json({ message: "Failed to fetch following list", error: error.message });
   }
 };
 
@@ -79,9 +87,9 @@ exports.getFollowers = async (req, res) => {
       }
     });
 
-    res.json(user.Followers);
+    return res.json(user.Followers);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch followers list", error: error.message });
+    return res.status(500).json({ message: "Failed to fetch followers list", error: error.message });
   }
 };
 

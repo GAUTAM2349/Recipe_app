@@ -18,7 +18,15 @@ exports.createReview = async (req, res) => {
       comment
     });
 
+
+    await Activity.create({
+      user_id: req.user.id,
+      activity_type: 'review_recipe',
+      target_id: recipe.id,
+    });
+
     res.status(201).json(review);
+    
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

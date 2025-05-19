@@ -24,7 +24,7 @@ exports.addFavorite = async (req, res) => {
 // Remove a recipe from user's favorites
 exports.removeFavorite = async (req, res) => {
   const userId = req.user.id;
-  const { recipeId } = req.body;
+  const { recipeId } = req.params;
 
   try {
     const user = await User.findByPk(userId);

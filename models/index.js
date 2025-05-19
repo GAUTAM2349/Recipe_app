@@ -7,13 +7,13 @@ const CollectionRecipe = require('./CollectionRecipe');
 const Review = require('./Review');
 const Follow = require('./Follow');
 const Activity = require('./Activity');
-// ***********************************************************************************************************8
 
+// ========== ASSOCIATIONS ==========
 
-
+// USER ⇄ RECIPE - from owner of recipe perspective
 User.hasMany(Recipe, { foreignKey: 'user_id' });
 Recipe.belongsTo(User, { foreignKey: 'user_id' });
-
+// USER ⇄ FAVORITES ⇄ RECIPE
 User.belongsToMany(Recipe, {
   through: Favorite,
   foreignKey: 'user_id',
@@ -28,11 +28,11 @@ Recipe.belongsToMany(User, {
   as: 'UsersWhoFavorited'
 });
 
-
+// USER ⇄ COLLECTION
 User.hasMany(Collection, { foreignKey: 'user_id' });
 Collection.belongsTo(User, { foreignKey: 'user_id' });
 
-
+// COLLECTION ⇄ RECIPES
 Collection.belongsToMany(Recipe, {
   through: CollectionRecipe,
   foreignKey: 'collection_id',
@@ -44,13 +44,13 @@ Recipe.belongsToMany(Collection, {
   otherKey: 'collection_id'
 });
 
-
+// USER ⇄ REVIEW ⇄ RECIPE
 User.hasMany(Review, { foreignKey: 'user_id' });
 Recipe.hasMany(Review, { foreignKey: 'recipe_id' });
 Review.belongsTo(User, { foreignKey: 'user_id' });
 Review.belongsTo(Recipe, { foreignKey: 'recipe_id' });
 
-
+// USER ⇄ FOLLOW (self-referencing)
 User.belongsToMany(User, {
   through: Follow,
   as: 'Followers',
@@ -64,7 +64,7 @@ User.belongsToMany(User, {
   otherKey: 'followee_id'
 });
 
-
+// USER ⇄ ACTIVITY
 User.hasMany(Activity, { foreignKey: 'user_id' });
 Activity.belongsTo(User, { foreignKey: 'user_id' });
 

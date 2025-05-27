@@ -7,6 +7,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   const { name, bio, profilePicture } = req.body;
+  console.log("\n\n got name, bio, profilPic", name,bio,profilePicture)
   try {
     req.user.name = name ?? req.user.name;
     req.user.bio = bio ?? req.user.bio;

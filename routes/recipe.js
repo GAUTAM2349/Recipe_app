@@ -8,11 +8,13 @@ const {
   getAllRecipes,
   getRecipeById,
   updateRecipe,
-  deleteRecipe
+  deleteRecipe,
+  getMyRecipes
 } = require('../controllers/recipe');
 
 // Public Routes
 router.get('/', getAllRecipes);
+router.get('/user-recipes', usersOnly, getMyRecipes)
 router.get('/:id', getRecipeById);
 
 // Protected Routes (require login)

@@ -1,28 +1,32 @@
-const { Op, where, fn, col } = require('sequelize');
-const { Activity, sequelize, User } = require('../models');
-const Recipe = require('../models/Recipe');
+const { Op, where, fn, col } = require("sequelize");
+const { Activity, sequelize, User } = require("../models");
+const Recipe = require("../models/Recipe");
 
 const createRecipe = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const newRecipe = await Recipe.create({ ...req.body, user_id: req.user.id }, { transaction: t });
+    const newRecipe = await Recipe.create(
+      { ...req.body, user_id: req.user.id },
+      { transaction: t }
+    );
 
-    await Activity.create({
-      user_id: req.user.id,
-      activity_type: 'new_recipe',
-      target_id: newRecipe.id,
-    }, { transaction: t });
+    await Activity.create(
+      {
+        user_id: req.user.id,
+        activity_type: "new_recipe",
+        target_id: newRecipe.id,
+      },
+      { transaction: t }
+    );
 
     await t.commit();
     res.status(201).json(newRecipe);
   } catch (err) {
     await t.rollback();
     console.log(error);
-    res.status(500).json({ message: 'Failed to create recipe' });
+    res.status(500).json({ message: "Failed to create recipe" });
   }
 };
-
-
 
 // const getAllRecipes = async (req, res) => {
 //   try {
@@ -104,7 +108,14 @@ const createRecipe = async (req, res) => {
 //   }
 // };
 const getAllRecipes = async (req, res) => {
-  const { search, category, difficulty, dietary, page = 1, limit = 10 } = req.query; /* limit for future frontend update */
+  const {
+    search,
+    category,
+    difficulty,
+    dietary,
+    page = 1,
+    limit = 10,
+  } = req.query; /* limit for future frontend update */
   const offset = (page - 1) * limit;
   const whereClause = {};
 
@@ -129,22 +140,50 @@ const getAllRecipes = async (req, res) => {
     limit: parseInt(limit),
     offset: parseInt(offset),
     order: [["created_at", "DESC"]],
-    include: { model: User, attributes: ["id", "name", "profile_picture"] }
+    include: { model: User, attributes: ["id", "name", "profile_picture"] },
   });
 
   res.json({ recipes: rows, totalPages: Math.ceil(count / limit) });
 };
 
-
 const getRecipeById = async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id);
-    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
     res.json(recipe);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch specific `recipe' });
+    res.status(500).json({ message: "Failed to fetch specific `recipe" });
   }
 };
+
+const getMyRecipes = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  try {
+    
+    const { count, rows } = await Recipe.findAndCountAll({
+      where: { user_id: req.user.id },
+      limit,
+      offset,
+      order: [["created_at", "DESC"]],
+    });
+
+    res.json({
+      recipes: rows,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Failed to fetch user's recipes",
+      error: err.message,
+    });
+  }
+};
+
 
 const updateRecipe = async (req, res) => {
   const t = await sequelize.transaction();
@@ -152,22 +191,25 @@ const updateRecipe = async (req, res) => {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe || recipe.user_id !== req.user.id) {
       await t.rollback();
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: "Not authorized" });
     }
 
     await recipe.update(req.body, { transaction: t });
 
-    await Activity.create({
-      user_id: req.user.id,
-      type: 'update_recipe',
-      target_id: recipe.id,
-    }, { transaction: t });
+    await Activity.create(
+      {
+        user_id: req.user.id,
+        type: "update_recipe",
+        target_id: recipe.id,
+      },
+      { transaction: t }
+    );
 
     await t.commit();
-    res.json({ message: 'Recipe updated successfully' });
+    res.json({ message: "Recipe updated successfully" });
   } catch (err) {
     await t.rollback();
-    res.status(500).json({ message: 'Failed to update recipe' });
+    res.status(500).json({ message: "Failed to update recipe" });
   }
 };
 
@@ -177,23 +219,32 @@ const deleteRecipe = async (req, res) => {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe || recipe.user_id !== req.user.id) {
       await t.rollback();
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    await Activity.create({
-      user_id: req.user.id,
-      type: 'delete_recipe',
-      target_id: recipe.id,
-    }, { transaction: t });
+    await Activity.create(
+      {
+        user_id: req.user.id,
+        type: "delete_recipe",
+        target_id: recipe.id,
+      },
+      { transaction: t }
+    );
 
     await recipe.destroy({ transaction: t });
     await t.commit();
-    res.json({ message: 'Recipe deleted successfully' });
+    res.json({ message: "Recipe deleted successfully" });
   } catch (err) {
     await t.rollback();
-    res.status(500).json({ message: 'Failed to delete recipe' });
+    res.status(500).json({ message: "Failed to delete recipe" });
   }
 };
 
-
-module.exports = { createRecipe, getAllRecipes, getRecipeById, updateRecipe, deleteRecipe };
+module.exports = {
+  createRecipe,
+  getAllRecipes,
+  getRecipeById,
+  updateRecipe,
+  deleteRecipe,
+  getMyRecipes,
+};

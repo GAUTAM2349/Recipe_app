@@ -104,7 +104,7 @@ const createRecipe = async (req, res) => {
 //   }
 // };
 const getAllRecipes = async (req, res) => {
-  const { search, category, difficulty, dietary, page = 1, limit = 10 } = req.query;
+  const { search, category, difficulty, dietary, page = 1, limit = 10 } = req.query; /* limit for future frontend update */
   const offset = (page - 1) * limit;
   const whereClause = {};
 
@@ -142,7 +142,7 @@ const getRecipeById = async (req, res) => {
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
     res.json(recipe);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch recipe' });
+    res.status(500).json({ message: 'Failed to fetch specific `recipe' });
   }
 };
 

@@ -57,6 +57,7 @@ User.belongsToMany(User, {
   foreignKey: 'followee_id',
   otherKey: 'follower_id'
 });
+
 User.belongsToMany(User, {
   through: Follow,
   as: 'Following',

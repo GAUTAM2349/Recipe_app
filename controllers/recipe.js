@@ -1,6 +1,7 @@
 const { Op, where, fn, col } = require("sequelize");
 const { Activity, sequelize, User } = require("../models");
 const Recipe = require("../models/Recipe");
+const uploadToS3 = require("../utils/s3Upload");
 
 const createRecipe = async (req, res) => {
   const t = await sequelize.transaction();
@@ -23,7 +24,7 @@ const createRecipe = async (req, res) => {
     res.status(201).json(newRecipe);
   } catch (err) {
     await t.rollback();
-    console.log(error);
+    console.log(err);
     res.status(500).json({ message: "Failed to create recipe" });
   }
 };
@@ -185,8 +186,78 @@ const getMyRecipes = async (req, res) => {
 };
 
 
+// const updateRecipe = async (req, res) => {
+//   const t = await sequelize.transaction();
+//   try {
+//     const recipe = await Recipe.findByPk(req.params.id);
+//     if (!recipe || recipe.user_id !== req.user.id) {
+//       await t.rollback();
+//       return res.status(403).json({ message: "Not authorized" });
+//     }
+
+//     await recipe.update(req.body, { transaction: t });
+
+//     await Activity.create(
+//       {
+//         user_id: req.user.id,
+//         type: "update_recipe",
+//         target_id: recipe.id,
+//       },
+//       { transaction: t }
+//     );
+
+//     await t.commit();
+//     res.json({ message: "Recipe updated successfully" });
+//   } catch (err) {
+//     await t.rollback();
+//     res.status(500).json({ message: "Failed to update recipe" });
+//   }
+// };
+
+// const updateRecipe = async (req, res) => {
+//   const t = await sequelize.transaction();
+//   const file = req.file;
+//   try {
+//     const recipe = await Recipe.findByPk(req.params.id);
+//     if (!recipe || recipe.user_id !== req.user.id) {
+//       await t.rollback();
+//       return res.status(403).json({ message: "Not authorized" });
+//     }
+
+//     let imageUrl = recipe.image_url;
+//     if (file) {
+//       const fileName = `recipe_images/${Date.now()}_${file.originalname}`;
+//       imageUrl = await uploadToS3(file.buffer, fileName);
+//       console.log("\n\nsuccesfully upladed recipe image to s3 bucket")
+//     }
+
+//     await recipe.update(
+//       { ...req.body, image_url: imageUrl },
+//       { transaction: t }
+//     );
+
+//     await Activity.create(
+//       {
+//         user_id: req.user.id,
+//         type: "update_recipe",
+//         target_id: recipe.id,
+//       },
+//       { transaction: t }
+//     );
+
+//     await t.commit();
+//     res.json({ message: "Recipe updated successfully" });
+//   } catch (err) {
+//     console.log(err);
+//     await t.rollback();
+//     res.status(500).json({ message: "Failed to update recipe", error: err.message });
+//   }
+// };
+
+
 const updateRecipe = async (req, res) => {
   const t = await sequelize.transaction();
+  const file = req.file;
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe || recipe.user_id !== req.user.id) {
@@ -194,7 +265,27 @@ const updateRecipe = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    await recipe.update(req.body, { transaction: t });
+    let imageUrl = recipe.image_url;
+    if (file) {
+      const fileName = `recipe_images/${Date.now()}_${file.originalname}`;
+      imageUrl = await uploadToS3(file.buffer, fileName);
+      console.log("\n\nsuccessfully uploaded recipe image to s3 bucket");
+    }
+
+    // Parse JSON strings to arrays before update
+    const updatedData = {
+      ...req.body,
+      image_url: imageUrl,
+    };
+
+    if (typeof updatedData.ingredients === "string") {
+      updatedData.ingredients = JSON.parse(updatedData.ingredients);
+    }
+    if (typeof updatedData.dietary_tags === "string") {
+      updatedData.dietary_tags = JSON.parse(updatedData.dietary_tags);
+    }
+
+    await recipe.update(updatedData, { transaction: t });
 
     await Activity.create(
       {
@@ -208,10 +299,14 @@ const updateRecipe = async (req, res) => {
     await t.commit();
     res.json({ message: "Recipe updated successfully" });
   } catch (err) {
+    console.log(err);
     await t.rollback();
-    res.status(500).json({ message: "Failed to update recipe" });
+    res.status(500).json({ message: "Failed to update recipe", error: err.message });
   }
 };
+
+
+
 
 const deleteRecipe = async (req, res) => {
   const t = await sequelize.transaction();

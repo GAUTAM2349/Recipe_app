@@ -7,12 +7,13 @@ const {
   updateProfile,
   userLoginStatus
 } = require('../controllers/user');
+const upload = require('../middlewares/multer');
 
 
 
 // Protected routes
 router.get('/profile', usersOnly, getProfile);
-router.put('/profile', usersOnly, updateProfile);
+router.put('/profile', usersOnly, upload.single("profilePicture") ,updateProfile);
 router.get('/login-status',usersOnly,userLoginStatus);
 
 module.exports = router;

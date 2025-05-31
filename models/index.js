@@ -38,6 +38,7 @@ Collection.belongsToMany(Recipe, {
   foreignKey: 'collection_id',
   otherKey: 'recipe_id'
 });
+
 Recipe.belongsToMany(Collection, {
   through: CollectionRecipe,
   foreignKey: 'recipe_id',

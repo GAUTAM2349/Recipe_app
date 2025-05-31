@@ -11,6 +11,7 @@ const {
   deleteRecipe,
   getMyRecipes
 } = require('../controllers/recipe');
+const upload = require('../middlewares/multer');
 
 // Public Routes
 router.get('/', getAllRecipes);
@@ -20,7 +21,7 @@ router.get('/:id', getRecipeById);
 // Protected Routes (require login)
 
 router.post('/', usersOnly, createRecipe);
-router.put('/:id', usersOnly, updateRecipe);
+router.put('/:id', usersOnly, upload.single("image_url") ,updateRecipe);
 router.delete('/:id', usersOnly, deleteRecipe);
 
 module.exports = router;

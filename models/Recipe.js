@@ -13,7 +13,7 @@ const Recipe = sequelize.define("recipe", {
   difficulty: DataTypes.STRING,
   image_url: DataTypes.TEXT,
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  isApproved: { type: DataTypes.BOOLEAN, defaultValue: false }
+  approval: { type: DataTypes.STRING, defaultValue: "pending" }
 });
 
 module.exports = Recipe;

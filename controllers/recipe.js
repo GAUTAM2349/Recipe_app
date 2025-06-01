@@ -43,7 +43,7 @@ const getAllRecipes = async (req, res) => {
   } = req.query; 
 
   const offset = (page - 1) * limit;
-  const whereClause = { isApproved:true };
+  const whereClause = {  };
 
   if (search) {
     whereClause[Op.or] = [
@@ -59,6 +59,8 @@ const getAllRecipes = async (req, res) => {
       }),
     ];
   }
+
+  whereClause.approval = "approved";
 
   if (category) whereClause.category = category;
   if (difficulty) whereClause.difficulty = difficulty;
@@ -96,7 +98,7 @@ const getMyRecipes = async (req, res) => {
   try {
     
     const { count, rows } = await Recipe.findAndCountAll({
-      where: { user_id: req.user.id, isApproved : true },
+      where: { user_id: req.user.id, approval : { [Op.in] : ["pending","approved"] } },
       limit,
       offset,
       order: [["created_at", "DESC"]],
@@ -205,7 +207,7 @@ const unapprovedRecipes = async (req, res) => {
   
   try {
     const recipes = await Recipe.findAll({
-      where: { isApproved: false },
+      where: { approval : "pending" },
       order: [["created_at", "DESC"]],
       include: {
         model: User,
@@ -229,7 +231,7 @@ const approveRecipe = async (req, res) => {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ message: "Recipe not found" });
 
-    recipe.isApproved = true;
+    recipe.approval = "approved";
     await recipe.save();
 
     res.json({ message: "Recipe approved successfully" });
@@ -248,10 +250,10 @@ const disapproveRecipe = async (req, res) => {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ message: "Recipe not found" });
 
-    recipe.isApproved = false;
+    recipe.approval = "banned";
     await recipe.save();
 
-    res.json({ message: "Recipe disapproved successfully" });
+    res.json({ message: "Recipe banned successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to disapprove recipe" });

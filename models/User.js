@@ -9,6 +9,7 @@ const User = sequelize.define("user", {
   profile_picture: DataTypes.TEXT,
   role: { type: DataTypes.STRING, defaultValue: "user" },
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  isBanned: { type: DataTypes.BOOLEAN, defaultValue: false},
 });
 
 module.exports = User;

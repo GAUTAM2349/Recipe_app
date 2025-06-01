@@ -6,9 +6,10 @@ const usersOnly = async (req, res, next) => {
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
   try {
-    const decoded = jwt.verify(token, 'your_jwt_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET );
     const user = await User.findByPk(decoded.id);
     if (!user) return res.status(401).json({ message: 'User not found' });
+    if( user.isBanned === true ) return res.status(403).json({ message : "banned"}); // banned user
 
     req.user = user;
     next();

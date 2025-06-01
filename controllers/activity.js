@@ -15,7 +15,6 @@ exports.getActivityFeed = async (req, res) => {
     const followeeIds = followees.map(f => f.followee_id);
 
     if (followeeIds.length === 0) {
-      console.log("retured 1")
       return res.json([]); 
     }
 
@@ -32,6 +31,7 @@ exports.getActivityFeed = async (req, res) => {
         {
           model: User,
           attributes: ['id', 'name', 'profile_picture'],
+          where : {isBanned : false}
         },
         
       ],

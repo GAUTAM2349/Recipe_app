@@ -43,27 +43,6 @@ exports.getMyCollections = async (req, res) => {
   }
 };
 
-// Add recipes to a collection
-// exports.addRecipesToCollection = async (req, res) => {
-
-//   const { collectionId, recipeIds } = req.body;
-
-//   try {
-//     const collection = await Collection.findOne({
-//       where: { id: collectionId, user_id: req.user.id }
-//     });
-
-//     if (!collection) {
-//       return res.status(404).json({ message: "Collection not found" });
-//     }
-
-//     await collection.addRecipes(recipeIds);
-
-//     res.json({ message: "Recipes added to collection" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Failed to add recipes", error: error.message });
-//   }
-// };
 
 exports.addRecipeToCollections = async (req, res) => {
   const { recipeId, collectionId } = req.body;

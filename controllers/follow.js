@@ -25,7 +25,7 @@ exports.followUser = async (req, res) => {
     await Follow.create({ follower_id: followerId, followee_id: followeeId });
 
     const followedUser = await User.findByPk(followeeId, {
-      attributes: ['id', 'name', 'profile_picture'] // include fields you want
+      attributes: ['id', 'name', 'profile_picture'] 
     });
 
     res.status(201).json({ 
@@ -66,35 +66,18 @@ exports.unfollowUser = async (req, res) => {
 };
 
 
-// exports.getFollowing = async (req, res) => {
-//   try {
-//     const user = await User.findByPk(req.user.id, {
-//       include: {
-//         model: User,
-//         as: 'Following',
-//         attributes: ['id', 'name', 'profile_picture'],
-//         through: { attributes: [] } // Exclude Follow table data
-//       }
-//     });
-
-//     return res.json(user.Following);
-//   } catch (error) {
-//     return res.status(500).json({ message: "Failed to fetch following list", error: error.message });
-//   }
-// };
-
 exports.getFollowing = async (req, res) => {
   try {
-    // Fetch the authenticated user instance
     const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Use magic method to get users the current user is following
+    
     const following = await user.getFollowing({
       attributes: ['id', 'name', 'profile_picture'],
-      joinTableAttributes: [] // Exclude Follow table attributes
+      joinTableAttributes: [],
+      where : { isBanned : false }
     });
 
     return res.json(following);
@@ -103,37 +86,18 @@ exports.getFollowing = async (req, res) => {
   }
 };
 
-
-
-// exports.getFollowers = async (req, res) => {
-//   try {
-//     const user = await User.findByPk(req.user.id, {
-//       include: {
-//         model: User,
-//         as: 'Followers',
-//         attributes: ['id', 'name', 'email', 'profile_picture'],
-//         through: { attributes: [] }
-//       }
-//     });
-
-//     return res.json(user.Followers);
-//   } catch (error) {
-//     return res.status(500).json({ message: "Failed to fetch followers list", error: error.message });
-//   }
-// };
-
 exports.getFollowers = async (req, res) => {
   try {
-    // Fetch the authenticated user instance
+
     const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Use magic method to get users who follow the current user
     const followers = await user.getFollowers({
       attributes: ['id', 'name', 'email', 'profile_picture'],
-      joinTableAttributes: [] // Exclude Follow table attributes
+      joinTableAttributes: [], // attributes of junction table (follow table)
+      where : { isBanned : false }
     });
 
     return res.json(followers);

@@ -5,11 +5,10 @@ exports.createReview = async (req, res) => {
   const { recipeId, rating, comment } = req.body;
 
   try {
-    // Check if the recipe exists
-    const recipe = await Recipe.findByPk(recipeId);
+    
+    const recipe = await Recipe.findByPk(recipeId); // if recipe exist then only review is allowed
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
 
-    // Check if the user has already reviewed this recipe
     const existingReview = await Review.findOne({
       where: { user_id: userId, recipe_id: recipeId },
     });
@@ -19,7 +18,6 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ message: 'You have already reviewed this recipe' });
     }
 
-    // Create a new review
     const review = await Review.create({
       user_id: userId,
       recipe_id: recipeId,
@@ -27,7 +25,7 @@ exports.createReview = async (req, res) => {
       comment,
     });
 
-    // Log the activity
+    // acivity created
     await Activity.create({
       user_id: userId,
       activity_type: 'review_recipe',
@@ -48,7 +46,9 @@ exports.getReviewsByRecipe = async (req, res) => {
   try {
     const reviews = await Review.findAll({
       where: { recipe_id: recipeId },
-      include: [{ model: User, attributes: ['id', 'name', 'profile_picture'] }],
+      include: [{ model: User, attributes: ['id', 'name', 'profile_picture'], 
+        where : {isBanned: false}
+      }],
       order: [['created_at', 'DESC']]
     });
     console.log("sent reviews")
@@ -88,6 +88,7 @@ exports.deleteReview = async (req, res) => {
 
   try {
     const review = await Review.findByPk(reviewId);
+    // if( review.user_id != userId && )
     if (!review) return res.status(404).json({ message: 'Review not found' });
     if (review.user_id !== userId) return res.status(403).json({ message: 'Unauthorized' });
 

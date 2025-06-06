@@ -58,63 +58,10 @@ const checkUserRole = (req, res) => {
   return res.status(200).json({ role: req.user.role });
 };
 
-const blockUser = async (req, res) => {
-  const userId = req.params.id;
-
-  try {
-    const user = await User.findByPk(userId);
-
-    if (!user) res.status(404).json({ message: "no such user found" });
-
-    user.isBanned = true;
-    await user.save();
-
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const unblockUser = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    user.isBanned = false;
-    await user.save();
-
-    res.json({ message: "User unblocked successfully" });
-  } catch (error) {
-    console.error("Failed to unblock user:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-
-
-const getBlockedUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({
-      where: { isBanned: true },
-      attributes: ["id", "name", "email", "profile_picture"],
-    });
-
-    res.json(users);
-  } catch (error) {
-    console.error("Failed to get blocked users:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-
 module.exports = {
   getProfile,
   updateProfile,
   userLoginStatus,
   updateUserRole,
   checkUserRole,
-  blockUser,
-  unblockUser,
-  getBlockedUsers
 };

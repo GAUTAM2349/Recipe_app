@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/usersOnly');
 const { getActivityFeed } = require('../controllers/activity');
+const usersOnly = require('../middlewares/usersOnly');
 
-router.get('/', auth, getActivityFeed);
+router.get('/', usersOnly, getActivityFeed);
 
 module.exports = router;

@@ -7,6 +7,8 @@ const CollectionRecipe = require('./CollectionRecipe');
 const Review = require('./Review');
 const Follow = require('./Follow');
 const Activity = require('./Activity');
+const ForgotPasswordRequest = require('./ForgotPasswordRequest');
+
 
 // ========== ASSOCIATIONS ==========
 
@@ -70,6 +72,13 @@ User.belongsToMany(User, {
 User.hasMany(Activity, { foreignKey: 'user_id' });
 Activity.belongsTo(User, { foreignKey: 'user_id' });
 
+// ForgotPassword - User
+User.hasMany(ForgotPasswordRequest);
+ForgotPasswordRequest.belongsTo( User, {
+  allowNull : false
+});
+
+
 module.exports = {
   sequelize,
   User,
@@ -80,4 +89,5 @@ module.exports = {
   Review,
   Follow,
   Activity,
+  ForgotPasswordRequest
 };

@@ -3,9 +3,54 @@ const { Activity, sequelize, User } = require("../models");
 const Recipe = require("../models/Recipe");
 const uploadToS3 = require("../utils/s3Upload");
 
+// const createRecipe = async (req, res) => {
+//   const t = await sequelize.transaction();
+//   try {
+//     console.log(req.body)
+//     const newRecipe = await Recipe.create(
+//       { ...req.body, user_id: req.user.id },
+//       { transaction: t }
+//     );
+
+//     await Activity.create(
+//       {
+//         user_id: req.user.id,
+//         activity_type: "new_recipe",
+//         target_id: newRecipe.id,
+//       },
+//       { transaction: t }
+//     );
+
+//     await t.commit();
+//     res.status(201).json(newRecipe);
+//   } catch (err) {
+//     await t.rollback();
+//     console.log(err);
+//     res.status(500).json({ message: "Failed to create recipe" });
+//   }
+// };
+
 const createRecipe = async (req, res) => {
   const t = await sequelize.transaction();
+  const file = req.file;
+
   try {
+    if (file) {
+      const fileName = `recipe_images/${Date.now()}_${file.originalname}`;
+      const imageUrl = await uploadToS3(file.buffer, fileName);
+      req.body.image_url = imageUrl;
+      console.log("\n\nsuccessfully uploaded recipe image to s3 bucket");
+    }
+
+    // Parse arrays if they come as JSON strings
+    if (typeof req.body.ingredients === "string") {
+      req.body.ingredients = JSON.parse(req.body.ingredients);
+    }
+    if (typeof req.body.dietary_tags === "string") {
+      req.body.dietary_tags = JSON.parse(req.body.dietary_tags);
+    }
+
+    console.log(req.body);
 
     const newRecipe = await Recipe.create(
       { ...req.body, user_id: req.user.id },
@@ -30,9 +75,7 @@ const createRecipe = async (req, res) => {
   }
 };
 
-
 const getAllRecipes = async (req, res) => {
-
   const {
     search,
     category,
@@ -40,14 +83,13 @@ const getAllRecipes = async (req, res) => {
     dietary,
     page = 1,
     limit = 10,
-  } = req.query; 
+  } = req.query;
 
   const offset = (page - 1) * limit;
-  const whereClause = {  };
+  const whereClause = {};
 
   if (search) {
     whereClause[Op.or] = [
-
       { title: { [Op.iLike]: `%${search}%` } },
 
       where(fn("array_to_string", col("ingredients"), ","), {
@@ -71,16 +113,17 @@ const getAllRecipes = async (req, res) => {
     limit: parseInt(limit),
     offset: parseInt(offset),
     order: [["created_at", "DESC"]],
-    include: { model: User, attributes: ["id", "name", "profile_picture"],
-      where : {isBanned : false}
-     },
+    include: {
+      model: User,
+      attributes: ["id", "name", "profile_picture"],
+      where: { isBanned: false },
+    },
   });
 
   res.json({ recipes: rows, totalPages: Math.ceil(count / limit) });
 };
 
 const getRecipeById = async (req, res) => {
- 
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ message: "Recipe not found" });
@@ -96,9 +139,11 @@ const getMyRecipes = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    
     const { count, rows } = await Recipe.findAndCountAll({
-      where: { user_id: req.user.id, approval : { [Op.in] : ["pending","approved"] } },
+      where: {
+        user_id: req.user.id,
+        approval: { [Op.in]: ["pending", "approved"] },
+      },
       limit,
       offset,
       order: [["created_at", "DESC"]],
@@ -121,6 +166,7 @@ const getMyRecipes = async (req, res) => {
 const updateRecipe = async (req, res) => {
   const t = await sequelize.transaction();
   const file = req.file;
+  console.log(req.body);
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe || recipe.user_id !== req.user.id) {
@@ -164,12 +210,11 @@ const updateRecipe = async (req, res) => {
   } catch (err) {
     console.log(err);
     await t.rollback();
-    res.status(500).json({ message: "Failed to update recipe", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update recipe", error: err.message });
   }
 };
-
-
-
 
 const deleteRecipe = async (req, res) => {
   const t = await sequelize.transaction();
@@ -177,7 +222,10 @@ const deleteRecipe = async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id);
 
-    if (!recipe || (recipe.user_id !== req.user.id && req.user.role != "admin") ) {
+    if (
+      !recipe ||
+      (recipe.user_id !== req.user.id && req.user.role != "admin")
+    ) {
       await t.rollback();
       return res.status(403).json({ message: "Not authorized" });
     }
@@ -192,75 +240,11 @@ const deleteRecipe = async (req, res) => {
 
     await t.commit();
     res.json({ message: "Recipe deleted successfully" });
-
   } catch (err) {
     await t.rollback();
     res.status(500).json({ message: "Failed to delete recipe" });
   }
 };
-
-
-const unapprovedRecipes = async (req, res) => {
-
-  console.log("\n\n req user in recipe is ",req.user)
-  if( req.user.role != "admin" ) return res.status(403).json({message: "unauthorized"});
-  
-  try {
-    const recipes = await Recipe.findAll({
-      where: { approval : "pending" },
-      order: [["created_at", "DESC"]],
-      include: {
-        model: User,
-        attributes: ["id", "name", "profile_picture"],
-        where: { isBanned: false },  
-      },
-    });
-
-    res.json(recipes);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch unapproved recipes" });
-  }
-};
-
-const approveRecipe = async (req, res) => {
-
-  if( req.user.role != "admin" ) return res.status(403).json({message: "unauthorized"});
-  
-  try {
-    const recipe = await Recipe.findByPk(req.params.id);
-    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
-
-    recipe.approval = "approved";
-    await recipe.save();
-
-    res.json({ message: "Recipe approved successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to approve recipe" });
-  }
-};
-
-
-const disapproveRecipe = async (req, res) => {
-  if (req.user.role !== "admin")
-    return res.status(403).json({ message: "Unauthorized" });
-
-  try {
-    const recipe = await Recipe.findByPk(req.params.id);
-    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
-
-    recipe.approval = "banned";
-    await recipe.save();
-
-    res.json({ message: "Recipe banned successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to disapprove recipe" });
-  }
-};
-
-
 
 module.exports = {
   createRecipe,
@@ -269,8 +253,4 @@ module.exports = {
   updateRecipe,
   deleteRecipe,
   getMyRecipes,
-  unapprovedRecipes,
-  approveRecipe,
-  disapproveRecipe
 };
-

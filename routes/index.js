@@ -6,6 +6,8 @@ const favoriteRouter = require('./favorite');
 const reviewRouter = require('./review');
 const activityRouter = require('./activity');
 const collectionRouter = require('./collection');
+const adminRouter = require('./admin');
+const passwordRouter = require('./password');
 
 module.exports = {
   authRouter,
@@ -15,5 +17,7 @@ module.exports = {
   favoriteRouter,
   reviewRouter,
   activityRouter,
-  collectionRouter
+  collectionRouter,
+  adminRouter,
+  passwordRouter
 };

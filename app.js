@@ -5,7 +5,7 @@ const cors = require('cors');
 
 
 const express = require('express');
-const { authRouter, userRouter, recipeRouter, followRouter, favoriteRouter, reviewRouter, activityRouter, collectionRouter } = require('./routes');
+const { authRouter, userRouter, recipeRouter, followRouter, favoriteRouter, reviewRouter, activityRouter, collectionRouter, adminRouter, passwordRouter } = require('./routes');
 const { logIncomingRequests } = require('./middlewares/requests');
 const app = express();
 const PORT = process.env.PORT;
@@ -26,8 +26,9 @@ app.use('/api/favorite', favoriteRouter);
 app.use('/api/review', reviewRouter);
 app.use('/api/collection', collectionRouter);
 app.use('/api/activity', activityRouter);
-
+app.use('/api/admin', adminRouter);
 app.use('/api/activity', activityRouter);
+app.use('/api/password', passwordRouter);
 
 sequelize.sync({ alter : true }) 
   .then(() => {
@@ -37,4 +38,4 @@ sequelize.sync({ alter : true })
     console.error('Sync failed:', err);
   });
 
-app.listen( PORT ,()=>{ console.log("server started on port : "+ PORT) } );
+app.listen( PORT ,()=>{ console.log("server started on port : "+ PORT) } );``

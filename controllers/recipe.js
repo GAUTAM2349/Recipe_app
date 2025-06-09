@@ -3,33 +3,6 @@ const { Activity, sequelize, User } = require("../models");
 const Recipe = require("../models/Recipe");
 const uploadToS3 = require("../utils/s3Upload");
 
-// const createRecipe = async (req, res) => {
-//   const t = await sequelize.transaction();
-//   try {
-//     console.log(req.body)
-//     const newRecipe = await Recipe.create(
-//       { ...req.body, user_id: req.user.id },
-//       { transaction: t }
-//     );
-
-//     await Activity.create(
-//       {
-//         user_id: req.user.id,
-//         activity_type: "new_recipe",
-//         target_id: newRecipe.id,
-//       },
-//       { transaction: t }
-//     );
-
-//     await t.commit();
-//     res.status(201).json(newRecipe);
-//   } catch (err) {
-//     await t.rollback();
-//     console.log(err);
-//     res.status(500).json({ message: "Failed to create recipe" });
-//   }
-// };
-
 const createRecipe = async (req, res) => {
   const t = await sequelize.transaction();
   const file = req.file;
@@ -50,10 +23,11 @@ const createRecipe = async (req, res) => {
       req.body.dietary_tags = JSON.parse(req.body.dietary_tags);
     }
 
-    console.log(req.body);
+    let approval = "pending";
+    if( req.user.role == "admin" ) approval = "approved";
 
     const newRecipe = await Recipe.create(
-      { ...req.body, user_id: req.user.id },
+      { ...req.body, user_id: req.user.id, approval },
       { transaction: t }
     );
 
@@ -163,6 +137,33 @@ const getMyRecipes = async (req, res) => {
   }
 };
 
+
+const getPublicRecipesOfUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+
+    const user = await User.findByPk(userId);
+    if(!user || user.isBanned) return res.status(404).json({message: "user not found"});
+    
+    const recipes = await Recipe.findAll({
+      where: {
+        user_id: userId,
+        approval: "approved",
+      },
+      order: [["created_at", "DESC"]],
+    });
+
+    res.json(recipes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Failed to fetch public recipes for this user",
+      error: err.message,
+    });
+  }
+};
+
 const updateRecipe = async (req, res) => {
   const t = await sequelize.transaction();
   const file = req.file;
@@ -253,4 +254,5 @@ module.exports = {
   updateRecipe,
   deleteRecipe,
   getMyRecipes,
+  getPublicRecipesOfUser
 };

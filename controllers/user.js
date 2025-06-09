@@ -6,6 +6,36 @@ const getProfile = async (req, res) => {
   res.json({ id, name, email, bio, profile_picture });
 };
 
+
+const publicProfile = async (req, res) => {
+  try {
+    const { userId:id } = req.params;
+
+    const user = await User.findByPk(id, {
+      attributes: ['id', 'name'], // Add other public fields as needed
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get counts
+    const followersCount = await user.countFollowers();
+    const followingCount = await user.countFollowing();
+
+    return res.status(200).json({
+      id: user.id,
+      name: user.name,
+      followersCount,
+      followingCount,
+    });
+  } catch (error) {
+    console.error('Error in publicProfile:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 const updateProfile = async (req, res) => {
   const { name, bio } = req.body;
   const file = req.file;
@@ -64,4 +94,5 @@ module.exports = {
   userLoginStatus,
   updateUserRole,
   checkUserRole,
+  publicProfile
 };

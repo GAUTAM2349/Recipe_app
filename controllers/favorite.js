@@ -44,7 +44,6 @@ exports.removeFavorite = async (req, res) => {
 // Get all favorite recipes of logged-in user
 exports.getUserFavorites = async (req, res) => {
   const userId = req.user.id;
-
   try {
     const user = await User.findByPk(userId, {
       include: [{
@@ -53,6 +52,7 @@ exports.getUserFavorites = async (req, res) => {
         through: { attributes: [] } 
       }]
     });
+
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 

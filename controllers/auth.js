@@ -4,9 +4,8 @@ const { User } = require('../models');
 
 const register = async (req, res) => {
 
-  console.log("came inside ",req.url);
-  
   const { name, email, password } = req.body;
+
   try {
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already exists' });
@@ -21,8 +20,9 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  console.log("came inside ",req.url);
+  
   const { email, password } = req.body;
+  
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });

@@ -10,6 +10,7 @@ const isUserAdmin = (req, res) => {
 /***** Admin - User ******** */
 
 const blockUser = async (req, res) => {
+
   const userId = req.params.id;
 
   try {
@@ -59,9 +60,6 @@ const getBlockedUsers = async (req, res) => {
 /*******Admin - Recipe ********** */
 
 const unapprovedRecipes = async (req, res) => {
-  console.log("\n\n req user in recipe is ", req.user);
-  if (req.user.role != "admin")
-    return res.status(403).json({ message: "unauthorized" });
 
   try {
     const recipes = await Recipe.findAll({
@@ -82,9 +80,7 @@ const unapprovedRecipes = async (req, res) => {
 };
 
 const approveRecipe = async (req, res) => {
-  if (req.user.role != "admin")
-    return res.status(403).json({ message: "unauthorized" });
-
+  
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ message: "Recipe not found" });
@@ -100,8 +96,6 @@ const approveRecipe = async (req, res) => {
 };
 
 const disapproveRecipe = async (req, res) => {
-  if (req.user.role !== "admin")
-    return res.status(403).json({ message: "Unauthorized" });
 
   try {
     const recipe = await Recipe.findByPk(req.params.id);
@@ -115,6 +109,7 @@ const disapproveRecipe = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Failed to disapprove recipe" });
   }
+
 };
 
 

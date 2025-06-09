@@ -2,18 +2,13 @@ const { Collection, Recipe, CollectionRecipe } = require("../models");
 
 // Create a collection
 exports.createCollection = async (req, res) => {
-  const { name, description, recipeIds } = req.body;
+  const { name } = req.body;
 
   try {
     const collection = await Collection.create({
       name,
-      description,
       user_id: req.user.id,
     });
-
-    if (recipeIds?.length) {
-      await collection.setRecipes(recipeIds); // Automatically adds to junction table
-    }
 
     res.status(201).json(collection);
   } catch (error) {
@@ -127,5 +122,43 @@ exports.getRecipesInCollection = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch recipes in collection" });
+  }
+};
+
+
+// Remove a recipe from a collection
+exports.removeRecipeFromCollection = async (req, res) => {
+  console.log("entered to remove recipe");
+  const { recipeId, collectionId } = req.params;
+
+  if (!recipeId || !collectionId) {
+    return res.status(400).json({ message: "Please provide both recipeId and collectionId" });
+  }
+
+  try {
+    console.log("ran0")
+    const collection = await Collection.findOne({
+      where: {
+        id: collectionId,
+        user_id: req.user.id,
+      },
+    });
+    console.log("ran1")
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+console.log("ran2")
+    const existingRecipes = await collection.getRecipes({ where: { id: recipeId } });
+console.log("ran3")
+    if (existingRecipes.length === 0) {
+      return res.status(404).json({ message: "Recipe not found in the collection" });
+    }
+
+    await collection.removeRecipe(recipeId);
+
+    res.json({ message: "Recipe removed from collection" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to remove recipe", error: error.message });
   }
 };

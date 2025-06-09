@@ -10,12 +10,14 @@ const {
   updateRecipe,
   deleteRecipe,
   getMyRecipes,
+  getPublicRecipesOfUser,
 } = require('../controllers/recipe');
 const upload = require('../middlewares/multer');
 
 // Public Routes
 router.get('/', getAllRecipes);
 router.get('/user-recipes', usersOnly, getMyRecipes)
+router.get('/public/user-recipes/:id',getPublicRecipesOfUser);
 router.get('/:id', getRecipeById);
 
 // Protected Routes (require login)

@@ -12,10 +12,12 @@ const ForgotPasswordRequest = require('./ForgotPasswordRequest');
 
 // ========== ASSOCIATIONS ==========
 
-// USER ⇄ RECIPE - from owner of recipe perspective
+// USER ->> RECIPE (one-many)
+
 User.hasMany(Recipe, { foreignKey: 'user_id' });
 Recipe.belongsTo(User, { foreignKey: 'user_id' });
-// USER ⇄ FAVORITES ⇄ RECIPE
+
+// USER <-> favorite <-> RECIPE 
 User.belongsToMany(Recipe, {
   through: Favorite,
   foreignKey: 'user_id',
@@ -30,7 +32,7 @@ Recipe.belongsToMany(User, {
   as: 'UsersWhoFavorited'
 });
 
-// USER ⇄ COLLECTION
+// USER ->> COLLECTION
 User.hasMany(Collection, { foreignKey: 'user_id' });
 Collection.belongsTo(User, { foreignKey: 'user_id' });
 

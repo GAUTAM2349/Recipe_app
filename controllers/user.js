@@ -88,11 +88,15 @@ const checkUserRole = (req, res) => {
   return res.status(200).json({ role: req.user.role });
 };
 
+
+
+
 module.exports = {
   getProfile,
   updateProfile,
   userLoginStatus,
   updateUserRole,
   checkUserRole,
-  publicProfile
+  publicProfile,
+  
 };

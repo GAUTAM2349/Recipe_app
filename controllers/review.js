@@ -9,6 +9,8 @@ exports.createReview = async (req, res) => {
     const recipe = await Recipe.findByPk(recipeId); // if recipe exist then only review is allowed
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
 
+    if( recipe.user_id == userId ) res.status(400).json({message:"can't review your own recipe"});
+
     const existingReview = await Review.findOne({
       where: { user_id: userId, recipe_id: recipeId },
     });

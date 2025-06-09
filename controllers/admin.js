@@ -113,6 +113,21 @@ const disapproveRecipe = async (req, res) => {
 };
 
 
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      order: [['updatedAt', 'DESC']],
+    });
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 module.exports = {
     isUserAdmin,
     blockUser,
@@ -120,5 +135,6 @@ module.exports = {
     getBlockedUsers,
     unapprovedRecipes,
     approveRecipe,
-    disapproveRecipe
+    disapproveRecipe,
+    getAllUsers,
 }

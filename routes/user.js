@@ -9,6 +9,7 @@ const {
   publicProfile,
 } = require('../controllers/user');
 const upload = require('../middlewares/multer');
+const adminOnly = require('../middlewares/adminsOnly');
 
 
 

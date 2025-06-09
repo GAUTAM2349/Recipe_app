@@ -1,5 +1,5 @@
 const express = require('express');
-const { unapprovedRecipes, approveRecipe, disapproveRecipe, blockUser, unblockUser, getBlockedUsers, isUserAdmin } = require('../controllers/admin');
+const { unapprovedRecipes, approveRecipe, disapproveRecipe, blockUser, unblockUser, getBlockedUsers, isUserAdmin, getAllUsers, getRecipeById } = require('../controllers/admin');
 const adminOnly = require('../middlewares/adminsOnly');
 const router = express.Router();
 
@@ -10,5 +10,6 @@ router.put('/ban-recipe/:id', adminOnly, disapproveRecipe);
 router.put('/block-user/:id',adminOnly, blockUser);
 router.put('/unblock-user/:id',adminOnly,unblockUser);
 router.get('/blocked-users',adminOnly,getBlockedUsers);
+router.get('/all-users',adminOnly,getAllUsers);
 
 module.exports = router;

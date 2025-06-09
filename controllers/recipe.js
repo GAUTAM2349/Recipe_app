@@ -101,8 +101,11 @@ const getRecipeById = async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id);
     if (!recipe) return res.status(404).json({ message: "Recipe not found" });
+
+    if(recipe.approval == 'banned') return res.status(403).json({message:"recipe is banned"});
     res.json(recipe);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Failed to fetch specific `recipe" });
   }
 };

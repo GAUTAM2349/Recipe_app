@@ -4,8 +4,10 @@ const { User } = require('../models');
 
 const register = async (req, res) => {
 
-  const { name, email, password } = req.body;
+  let { name, email, password } = req.body;
 
+  email = email.toLowerCase();
+  
   try {
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already exists' });
@@ -21,7 +23,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   
-  const { email, password } = req.body;
+  let { email, password } = req.body;
+  email = email.toLowerCase();
   
   try {
     const user = await User.findOne({ where: { email } });

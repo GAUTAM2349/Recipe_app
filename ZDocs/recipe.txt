@@ -1,0 +1,95 @@
+# 📘 Recipe API Documentation
+
+______________________________________________________________________________________________________________
+
+## 🔹 `GET /api/recipes`
+**Description:** Get all approved recipes with filters and pagination  
+**Query Parameters:**
+- `search` (optional): Text search (title, ingredients, dietary_tags)
+- `category` (optional): Filter by category
+- `difficulty` (optional): Filter by difficulty
+- `dietary` (optional): Filter by dietary_tags
+- `page` (default: 1): Pagination page number
+- `limit` (default: 10): Items per page
+
+**Response:**
+{
+  "recipes": [...],
+  "totalPages": 5
+}
+
+
+_________________________________________________________________________________________________________________
+
+🔹 GET /api/recipes/user-recipes
+Auth: ✅ Required
+Description: Get logged-in user's own approved + pending recipes
+Query Params: page, limit
+Response:
+
+{
+  "recipes": [...],
+  "totalPages": 3,
+  "currentPage": 1
+}
+
+___________________________________________________________________________________________________________________
+
+🔹 GET /api/recipes/public/user-recipes/:id
+Description: Get public approved recipes of a user by ID
+Params: id – user ID
+Response: Array of recipes
+Error: 404 if user not found or banned
+
+
+_____________________________________________________________________________________________________________________
+
+🔹 GET /api/recipes/:id
+Description: Get a single recipe by ID
+Params: id – recipe ID
+Response: Recipe object
+Error:
+
+404 – if not found
+
+403 – if recipe is banned
+
+______________________________________________________________________________________________________________________
+
+🔹 POST /api/recipes
+Auth: ✅ Required
+Description: Create a new recipe
+Body (multipart/form-data):
+
+title, category, difficulty, etc.
+
+ingredients: JSON stringified array
+
+dietary_tags: JSON stringified array
+
+image_url: file (optional)
+
+Response :- { ...createdRecipe }
+
+________________________________________________________________________________________________________________________
+
+🔹 PUT /api/recipes/:id
+Auth: ✅ Required
+Description: Update a recipe (only by its author)
+Params: id – recipe ID
+Body (multipart/form-data): Same as creation
+Response: { "message": "Recipe updated successfully" }
+
+Error:
+403 – unauthorized
+500 – if update fails
+
+____________________________________________________________________________________________________________________________
+
+🔹 DELETE /api/recipes/:id
+
+Auth: ✅ Required
+Description: Delete a recipe
+Params: id – recipe ID
+Response: { "message": "Recipe deleted successfully" }
+

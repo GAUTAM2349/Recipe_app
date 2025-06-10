@@ -1,0 +1,77 @@
+
+📘 User Controller – API Documentation
+
+🔹 GET /api/user/profile
+Description: Get the logged-in user’s private profile
+Auth: ✅ Required (req.user)
+Response:
+
+{
+  "id": 1,
+  "name": "Goutam Raj",
+  "email": "goutam@example.com",
+  "bio": "I love coding",
+  "profile_picture": "https://s3.amazonaws.com/..."
+}
+
+________________________________________________________________________________________________________________________________
+🔹 GET /api/user/public-profile/:userId
+
+Description: Get the public profile of a user by ID
+Params:
+
+userId – user ID in URL
+Response:
+{
+  "id": 2,
+  "name": "John Doe",
+  "followersCount": 15,
+  "followingCount": 7
+}
+Errors:
+
+404 Not Found if user doesn't exist
+
+500 Server Error on internal failure
+
+_________________________________________________________________________________________________________________________________
+🔹 PUT /api/user/profile
+Description: Update logged-in user's profile info and profile picture
+Auth: ✅ Required
+Body:
+{
+  "name": "New Name",
+  "bio": "Updated bio"
+}
+FormData:
+
+file: optional image (profile picture)
+Response:
+{ "message": "Profile updated successfully" }
+Error:
+
+json
+Copy
+Edit
+{ "message": "Profile update failed", "error": "<error details>" }
+
+_____________________________________________________________________________________________________________________________________
+🔹 GET /api/user/login-status
+
+Description: Check if user is logged in
+Auth: ✅ Required (to access social features)
+Response:
+{
+  "message": "user is loggedin",
+  "user": {
+    "id": 1,
+    "name": "Goutam Raj",
+    ...
+  }
+}
+
+____________________________________________________________________________________________________________________________________________
+🔹 GET /api/user/role
+
+Description: Get the logged-in user’s role
+Response: { "role": "admin" }

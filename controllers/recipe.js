@@ -86,7 +86,7 @@ const getAllRecipes = async (req, res) => {
     where: whereClause,
     limit: parseInt(limit),
     offset: parseInt(offset),
-    order: [["created_at", "DESC"]],
+    order: [["updatedAt", "DESC"]],
     include: {
       model: User,
       attributes: ["id", "name", "profile_picture"],

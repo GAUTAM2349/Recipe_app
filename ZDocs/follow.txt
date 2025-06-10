@@ -1,0 +1,76 @@
+# 📘 Follow API Documentation
+
+_________________________________________________________________________________________________________
+
+## 🔹 `POST /api/follow/:id`
+**Auth:** ✅ Required  
+**Description:** Follow a user by ID  
+**Params:** `id` – user to follow  
+
+**Response:**
+
+{
+  "message": "Followed successfully",
+  "followedUser": {
+    "id": 2,
+    "name": "John Doe",
+    "profile_picture": "..."
+  }
+}
+
+Errors:
+
+400 – Cannot follow self or already following
+
+500 – Internal error
+
+__________________________________________________________________________________________________________
+🔹 DELETE /api/follow/:userId
+
+Auth: ✅ Required
+Description: Unfollow a user by ID
+Params: userId – user to unfollow
+Response: { "message": "Unfollowed successfully" }
+
+Errors:
+
+400 – Not following or invalid request (self)
+
+500 – Internal error
+
+
+___________________________________________________________________________________________________________
+
+🔹 GET /api/follow/followers
+
+Auth: ✅ Required
+Description: Get a list of users who follow the logged-in user
+Response:
+[
+  { "id": 3, "name": "Alice", "email": "alice@example.com", "profile_picture": "..." },
+  ...
+]
+Error:
+
+500 – Failed to fetch followers list
+
+____________________________________________________________________________________________________________
+
+🔹 GET /api/follow/following
+Auth: ✅ Required
+Description: Get a list of users the logged-in user is following
+Response:
+
+[
+  { "id": 4, "name": "Bob", "profile_picture": "..." },
+  ...
+]
+
+
+
+_____________________________________________________________________________________________________________
+
+
+
+
+_______________________________________________________________________________________________________________

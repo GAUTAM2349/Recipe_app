@@ -17,7 +17,7 @@ app.use(cors());
 
 
 //routes
-app.get( '/', (req,res)=>{res.end("yes working")})
+app.get( '/', (req,res)=>{res.end("yes server working")})
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/recipe', recipeRouter);
@@ -38,4 +38,4 @@ sequelize.sync({ alter : true })
     console.error('Sync failed:', err);
   });
 
-app.listen( PORT ,()=>{ console.log("server started on port : "+ PORT) } );``
+app.listen( PORT ,()=>{ console.log("server started on port : "+ PORT) } );

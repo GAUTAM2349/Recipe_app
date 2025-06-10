@@ -1,0 +1,63 @@
+# 🛠️ Admin API Documentation
+
+---
+
+## 🔹 `GET /api/admin/auth`
+**Auth:** ✅ Admin only  
+**Description:** Check if the logged-in user is an admin  
+**Response:**
+```json
+{ "message": "user is admin", "user": { ... } }
+
+__________________________________________________________________________________________________________________
+
+🔹 GET /api/admin/unapproved-recipes
+Auth: ✅ Admin only
+Description: Get all recipes awaiting admin approval
+Response: Array of recipes (with creator details, if not banned)
+
+___________________________________________________________________________________________________________________
+
+🔹 PUT /api/admin/approve-recipe/:id
+Auth: ✅ Admin only
+Description: Approve a recipe
+Params: id — recipe ID
+Response: { "message": "Recipe approved successfully" }
+
+____________________________________________________________________________________________________________________
+
+🔹 PUT /api/admin/ban-recipe/:id
+Auth: ✅ Admin only
+Description: Disapprove (ban) a recipe
+Params: id — recipe ID
+Response: { "message": "Recipe banned successfully" }
+
+_____________________________________________________________________________________________________________________
+
+🔹 PUT /api/admin/block-user/:id
+Auth: ✅ Admin only
+Description: Block a user (set isBanned = true)
+Params: id — user ID
+Response: { "success": true }
+
+_______________________________________________________________________________________________________________________
+
+🔹 PUT /api/admin/unblock-user/:id
+Auth: ✅ Admin only
+Description: Unblock a user
+Params: id — user ID
+Response: { "message": "User unblocked successfully" }
+
+________________________________________________________________________________________________________________________
+
+🔹 GET /api/admin/blocked-users
+Auth: ✅ Admin only
+Description: List all blocked users
+Response: Array of users with fields: id, name, email, profile_picture
+
+__________________________________________________________________________________________________________________________
+
+🔹 GET /api/admin/all-users
+Auth: ✅ Admin only
+Description: List all users sorted by last update
+Response: Array of all user records

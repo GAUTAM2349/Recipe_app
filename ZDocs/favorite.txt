@@ -1,0 +1,55 @@
+# 📘 Favorites API Documentation
+
+_______________________________________________________________________________________________________________
+
+## 🔹 `POST /api/favorite`
+**Auth:** ✅ Required  
+**Description:** Add a recipe to the current user's favorites  
+**Body:**  
+```json
+{ "recipeId": 5 }
+
+Response :- { "message": "Recipe added to favorites" }
+
+Errors:
+404 – User or recipe not found
+
+500 – Server error
+_________________________________________________________________________________________________________________
+
+
+🔹 DELETE /api/favorite/:recipeId
+Auth: ✅ Required
+Description: Remove a recipe from the current user's favorites
+Params: recipeId — ID of the recipe to remove
+
+Response: { "message": "Recipe removed from favorites" }
+
+Errors:
+
+404 – User or recipe not found
+
+500 – Server error
+
+____________________________________________________________________________________________________________________
+
+🔹 GET /api/favorite
+Auth: ✅ Required
+Description: Get all favorite recipes of the current user
+Response:
+
+[
+  {
+    "id": 5,
+    "title": "Spaghetti Carbonara",
+    "category": "Pasta",
+    ...
+  },
+  ...
+]
+
+Errors:
+
+404 – User not found
+
+500 – Server error

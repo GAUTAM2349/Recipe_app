@@ -1,0 +1,72 @@
+# 📚 Collections API Documentation
+
+All routes are authenticated via `usersOnly` middleware.
+
+---
+
+## 🔹 `POST /api/collections/`
+**Auth:** ✅ Users only  
+**Description:** Create a new collection  
+**Request Body:**
+```json
+{
+  "name": "My Favorite Desserts"
+}
+
+Response :-
+
+{
+  "message": "Collection created successfully",
+  "collection": { ... }
+}
+
+____________________________________________________________________________________________________________________
+
+🔹 GET /api/collections/
+Auth: ✅ Users only
+Description: Fetch all collections created by the logged-in user
+Response: Array of user's collections
+
+____________________________________________________________________________________________________________________
+
+🔹 POST /api/collections/add-recipe
+Auth: ✅ Users only
+Description: Add a recipe to one or more collections
+
+Request Body:
+
+{
+  "recipeId": 123,
+  "collectionIds": [1, 2]
+}
+
+Response :- { "message": "Recipe added to collections successfully" }
+
+_____________________________________________________________________________________________________________________
+
+🔹 DELETE /api/collections/:collectionId
+Auth: ✅ Users only
+Description: Delete a specific collection
+Params: collectionId — ID of the collection to delete
+
+Response: { "message": "Collection deleted successfully" }
+
+______________________________________________________________________________________________________________________
+
+🔹 GET /api/collections/get-collection-recipes/:collectionId
+Auth: ✅ Users only
+Description: Fetch all recipes inside a specific collection
+Params: collectionId — ID of the collection
+Response: Array of recipes
+
+________________________________________________________________________________________________________________________
+
+🔹 DELETE /api/collections/delete-collection-recipe/:collectionId/:recipeId
+Auth: ✅ Users only
+Description: Remove a specific recipe from a specific collection
+Params:
+
+collectionId — ID of the collection
+
+recipeId — ID of the recipe to remove
+Response: { "message": "Recipe removed from collection" }

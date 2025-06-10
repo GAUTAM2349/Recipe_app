@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/usersOnly');
+const usersOnly = require('../middlewares/usersOnly');
 const {
   addFavorite,
   removeFavorite,
@@ -8,13 +8,13 @@ const {
 } = require('../controllers/favorite');
 
 
-router.post('/', auth, addFavorite);
+router.post('/', usersOnly, addFavorite);
 
 
-router.delete('/:recipeId', auth, removeFavorite);
+router.delete('/:recipeId', usersOnly, removeFavorite);
 
 
-router.get('/', auth, getUserFavorites);
+router.get('/', usersOnly, getUserFavorites);
 
 
 
